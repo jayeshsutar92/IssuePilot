@@ -1,0 +1,38 @@
+metrics_to_run:
+  - issue_triage_evaluation
+
+custom_metrics:
+  - name: issue_triage_evaluation
+    prompt_template: |
+      You are an expert open-source maintainer and QA evaluator. Your task is to evaluate the agent's issue triage result.
+      
+      The input issue payload was:
+      {prompt}
+      
+      The agent's final triage output is:
+      {response}
+      
+      Evaluate the triage output based on the following three criteria:
+      1. Duplicate Check:
+         - If the input issue was about a "Database connection timeout during startup" (issue_number 105), the agent should identify it as a duplicate (is_duplicate: true) of issue #42.
+         - For other issues (issue_number 106 or 107), it should not be a duplicate (is_duplicate: false).
+      2. Missing Information:
+         - If the input issue description was very vague (e.g. issue_number 106: "It crashed on my machine. Please fix."), the agent must mark it as missing info (is_missing_info/missing_information list should contain fields like steps to reproduce, environment, or logs).
+         - If the issue description is detailed and well-formed (e.g. issue_number 107 or 105), it should not be missing crucial info.
+      3. Priority:
+         - A severe SQL injection vulnerability (issue_number 107) must be categorized as HIGH or CRITICAL.
+         - A database connection timeout on startup (issue_number 105) should be MEDIUM or HIGH.
+         - A vague crash report (issue_number 106) should be LOW or MEDIUM.
+
+      Assign a score from 1 to 5:
+      5 (Excellent): All three criteria are perfectly met.
+      4 (Good): Triage is mostly correct but rationale could be more detailed, or minor classification minor detail.
+      3 (Acceptable): Triage is correct on at least two out of three criteria.
+      2 (Poor): Triage is incorrect on at least two criteria.
+      1 (Failed): Triage completely failed or crashed.
+
+      Return your evaluation as a valid JSON object matching this structure:
+      {
+        "score": <integer between 1 and 5>,
+        "explanation": "<detailed string explaining the rationale for the score assigned>"
+      }

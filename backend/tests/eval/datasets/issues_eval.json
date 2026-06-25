@@ -1,0 +1,37 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "duplicate_check_case",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"issue_number\": 105, \"title\": \"Database connection timeout during startup\", \"body\": \"Getting database connection timeout on start.\", \"owner\": \"google\", \"repo\": \"adk-samples\"}"
+          }
+        ]
+      }
+    },
+    {
+      "eval_case_id": "missing_info_case",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"issue_number\": 106, \"title\": \"The application crashed\", \"body\": \"It crashed on my machine. Please fix.\", \"owner\": \"google\", \"repo\": \"adk-samples\"}"
+          }
+        ]
+      }
+    },
+    {
+      "eval_case_id": "well_formed_critical_case",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"issue_number\": 107, \"title\": \"Severe SQL injection vulnerability in connection handler\", \"body\": \"I found a SQL injection in app/database.py line 24. Here is the query: Select * from users where id = '+ id +'. Anyone can access the whole database. Steps to reproduce: 1. Send ID payload. 2. Verify all users fetched. Expected: Use parameterized query.\", \"owner\": \"google\", \"repo\": \"adk-samples\"}"
+          }
+        ]
+      }
+    }
+  ]
+}
