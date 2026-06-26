@@ -24,6 +24,7 @@ interface IssueTriage {
   missing_information: string[];
   suggested_labels: string[];
   rationale: string | null;
+  suggested_maintainer_response: string | null;
   github_created_at: string;
   triaged_at: string | null;
 }
@@ -158,8 +159,9 @@ export default function Home() {
   // Trigger manual triage
   const handleTriggerTriage = async (issueId: string) => {
     setTriageLoadingId(issueId);
+    let res: Response | null = null;
     try {
-      const res = await fetch(`${API_HOST}/api/issues/${issueId}/triage`, { method: "POST" });
+      res = await fetch(`${API_HOST}/api/issues/${issueId}/triage`, { method: "POST" });
       if (res.ok) {
         // Poll for updates or just refresh list after a short delay
         setTimeout(() => {
@@ -175,7 +177,10 @@ export default function Home() {
       }
     } catch (err) {
       console.error("Triage failed", err);
-      setTriageLoadingId(null);
+    } finally {
+      if (!res?.ok) {
+        setTriageLoadingId(null);
+      }
     }
   };
 
@@ -817,6 +822,16 @@ export default function Home() {
                             <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Agent Reasoning & Citations</span>
                             <div className="p-4 bg-[#0B0C10] border border-zinc-800/80 rounded-xl text-xs text-zinc-300 whitespace-pre-wrap leading-relaxed max-h-72 overflow-y-auto">
                               {selectedIssue.rationale}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Suggested Maintainer Response */}
+                        {selectedIssue.triaged_at && selectedIssue.suggested_maintainer_response && (
+                          <div className="space-y-2">
+                            <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Suggested Maintainer Response</span>
+                            <div className="p-4 bg-zinc-900 border border-zinc-700/50 rounded-xl text-xs text-zinc-300 whitespace-pre-wrap leading-relaxed">
+                              {selectedIssue.suggested_maintainer_response}
                             </div>
                           </div>
                         )}

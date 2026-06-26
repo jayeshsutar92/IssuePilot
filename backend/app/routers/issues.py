@@ -56,7 +56,6 @@ async def trigger_manual_triage(
     # Run triage in background task
     background_tasks.add_task(
         run_issue_triage,
-        db,
         repo.id,
         repo.owner,
         repo.name,

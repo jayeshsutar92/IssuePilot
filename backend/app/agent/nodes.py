@@ -2,6 +2,9 @@ from google.adk.agents import LlmAgent
 from google.adk.workflow import JoinNode
 from app.agent.schemas import DuplicateCheckResult, MissingInfoResult, LabelPriorityResult, IssueTriageResult, PriorityEnum
 from app.agent.tools import github_search_issues
+import logging
+
+logger = logging.getLogger(__name__)
 
 # 1. Initialize State Node
 def initialize_state(ctx, node_input) -> str:
@@ -26,6 +29,8 @@ def initialize_state(ctx, node_input) -> str:
     ctx.state["owner"] = data.get("owner", "")
     ctx.state["repo"] = data.get("repo", "")
     
+    logger.info(f"Initialized state for Issue #{ctx.state['issue_number']}: {ctx.state['title']}")
+
     return (
         f"Issue #{ctx.state['issue_number']}\n"
         f"Title: {ctx.state['title']}\n"
@@ -35,7 +40,7 @@ def initialize_state(ctx, node_input) -> str:
 # 2. Duplicate Detector Agent
 duplicate_detector = LlmAgent(
     name="duplicate_detector",
-    model="gemini-1.5-flash",
+    model="gemini-2.5-flash",
     instruction=(
         "You are a Duplicate Detector Agent. Analyze the issue details in the input and determine if this issue is a duplicate "
         "of another issue already present in the repository.\n"
@@ -53,7 +58,7 @@ duplicate_detector = LlmAgent(
 # 3. Missing Info Checker Agent
 missing_info_checker = LlmAgent(
     name="missing_info_checker",
-    model="gemini-1.5-flash",
+    model="gemini-2.5-flash",
     instruction=(
         "You are a Missing Information Checker Agent. Analyze the issue details in the input and verify if there is crucial "
         "information missing for triage or debugging (such as steps to reproduce, environment info, or logs).\n"
@@ -66,7 +71,7 @@ missing_info_checker = LlmAgent(
 # 4. Label & Priority Predictor Agent
 label_priority_predictor = LlmAgent(
     name="label_priority_predictor",
-    model="gemini-1.5-flash",
+    model="gemini-2.5-flash",
     instruction=(
         "You are a Label and Priority Predictor Agent. Analyze the issue details and recommend relevant labels (like 'bug', "
         "'feature', 'refactor', 'documentation') and assign a triage priority (LOW, MEDIUM, HIGH, CRITICAL) "
@@ -86,6 +91,7 @@ merge_analysis = JoinNode(name="merge_analysis")
 # 6. Format Triage Summary Node
 def format_triage_summary(ctx, node_input: dict) -> IssueTriageResult:
     """Combines outputs from the parallel agents into a structured IssueTriageResult."""
+    logger.info("Formatting triage summary...")
     # JoinNode output format is dict keyed by predecessor names
     dup_data = node_input.get("duplicate_detector") or {}
     info_data = node_input.get("missing_info_checker") or {}
@@ -119,6 +125,9 @@ def format_triage_summary(ctx, node_input: dict) -> IssueTriageResult:
         f"- Rationale: {label_data.get('rationale', 'N/A')}"
     )
     
+    suggested_maintainer_response = label_data.get("suggested_response")
+    logger.info(f"Triage completed for Issue #{ctx.state.get('issue_number')}. Priority: {priority.value}, Duplicate: {is_duplicate}")
+    
     return IssueTriageResult(
         issue_number=ctx.state.get("issue_number", 0),
         title=ctx.state.get("title", ""),
@@ -127,5 +136,6 @@ def format_triage_summary(ctx, node_input: dict) -> IssueTriageResult:
         duplicate_issue_number=duplicate_number,
         missing_information=missing_fields if is_missing_info else [],
         suggested_labels=suggested_labels,
-        rationale=combined_rationale
+        rationale=combined_rationale,
+        suggested_maintainer_response=suggested_maintainer_response
     )

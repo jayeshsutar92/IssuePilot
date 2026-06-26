@@ -47,7 +47,6 @@ async def sync_repository_issues(db_session: Session, repo: Repository, pat: str
             if not db_issue.triaged_at:
                 try:
                     await run_issue_triage(
-                        db_session=db_session,
                         repo_id=repo.id,
                         owner=repo.owner,
                         repo=repo.name,

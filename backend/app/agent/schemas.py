@@ -22,6 +22,7 @@ class LabelPriorityResult(BaseModel):
     suggested_labels: List[str] = Field(default_factory=list, description="Suggested labels to apply (e.g. 'bug', 'feature request', 'documentation', 'refactor', 'regression').")
     priority: PriorityEnum = Field(description="Triage priority level based on severity and impact.")
     rationale: str = Field(description="Reasoning for the assigned priority and suggested labels.")
+    suggested_response: str = Field(description="A draft of a polite, contextual response to the issue creator. If duplicate, mention the duplicate issue; if missing info, list the specific missing details politely; otherwise, thank them and state next steps.")
 
 class IssueTriageResult(BaseModel):
     issue_number: int
@@ -32,3 +33,4 @@ class IssueTriageResult(BaseModel):
     missing_information: List[str] = Field(default_factory=list)
     suggested_labels: List[str] = Field(default_factory=list)
     rationale: str = Field(description="Comprehensive summary of the triage analysis combining duplicate checks, missing info, and priority logic.")
+    suggested_maintainer_response: Optional[str] = Field(None, description="Suggested response for the maintainer to send to the issue author.")

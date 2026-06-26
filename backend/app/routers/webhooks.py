@@ -86,7 +86,6 @@ async def github_webhook_receiver(
     # Queue ADK Triage in background task
     background_tasks.add_task(
         run_issue_triage,
-        db,
         repo.id,
         repo.owner,
         repo.name,

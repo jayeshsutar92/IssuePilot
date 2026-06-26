@@ -32,5 +32,6 @@ class IssueTriage(SQLModel, table=True):
     suggested_labels: List[str] = Field(default_factory=list, sa_column=Column(JSON))
     
     rationale: Optional[str] = Field(default=None, nullable=True)
+    suggested_maintainer_response: Optional[str] = Field(default=None, nullable=True)
     github_created_at: datetime.datetime
     triaged_at: Optional[datetime.datetime] = Field(default=None, nullable=True)

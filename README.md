@@ -1,6 +1,6 @@
-# IssuePilot ✈️
+# IssuePilot: AI-Powered GitHub Issue Triage Assistant ✈️
 
-IssuePilot is a full-stack, AI-powered GitHub Issue Triage platform built as a capstone project for the **Google × Kaggle AI Agents** program. It helps open-source maintainers prioritize issues, detect duplicate submissions, identify missing diagnostic details, and recommend relevant tags for human review.
+IssuePilot is a full-stack, AI-powered GitHub Issue Triage Assistant designed specifically for open-source maintainers. Built as a capstone project for the **Google × Kaggle AI Agents** program, it streamlines repository management by automatically prioritizing incoming issues, detecting duplicate submissions, identifying missing diagnostic details, and recommending relevant tags for human review.
 
 ---
 
@@ -14,14 +14,30 @@ IssuePilot is a full-stack, AI-powered GitHub Issue Triage platform built as a c
 
 ---
 
+## 📸 Screenshots
+
+### Dashboard
+![Dashboard Placeholder](placeholder-dashboard.png)
+
+### Repository Connection
+![Repository Connection Placeholder](placeholder-connect.png)
+
+### Issue Queue
+![Issue Queue Placeholder](placeholder-queue.png)
+
+### AI Triage Results
+![AI Triage Results Placeholder](placeholder-results.png)
+
+---
+
 ## 🛠️ Tech Stack
 
 - **Frontend**: Next.js (App Router, TypeScript, Tailwind CSS)
 - **Backend**: FastAPI (Python 3.11+, SQLModel ORM, Async Client)
 - **Database**: PostgreSQL (Data persistence)
 - **Caching & Memory**: Redis (API response caching, session management)
-- **AI Agent Framework**: Google Agent Development Kit (ADK 2.0 Workflows API)
-- **Models**: Gemini API (`gemini-1.5-flash` via AI Studio or Vertex AI)
+- **AI Agent Framework**: Google Agent Development Kit (ADK Workflows API)
+- **Models**: Gemini API (`gemini-2.5-flash` via AI Studio or Vertex AI)
 - **Integrations**: GitHub REST API (Issue sync & webhook receivers)
 - **Environment**: Docker & Docker Compose (Containerization)
 
@@ -29,9 +45,9 @@ IssuePilot is a full-stack, AI-powered GitHub Issue Triage platform built as a c
 
 ## 📐 Architecture & Workflow
 
-IssuePilot offloads intensive processing to a parallelized, graph-based DAG orchestrator built with Google ADK 2.0:
+IssuePilot leverages the **Google ADK Workflows API** to orchestrate a multi-agent system. Instead of relying on a single monolithic prompt, the system offloads intensive processing to a parallelized, graph-based DAG orchestrator built with Google ADK 2.0. This parallel agent orchestration allows distinct agents to simultaneously evaluate priority, search for duplicates, and check for missing information before synthesizing a final rationale.
 
-```
+```text
                   ┌───────────────────────┐
                   │      START Node       │
                   └───────────┬───────────┘
@@ -60,6 +76,18 @@ IssuePilot offloads intensive processing to a parallelized, graph-based DAG orch
                   │ Format Triage Summary │
                   └───────────────────────┘
 ```
+
+---
+
+## 🧠 AI Agent Concepts Used
+
+This project demonstrates several advanced agentic patterns:
+- **Multi-agent workflow**: Dividing the complex task of issue triage into specialized sub-agents.
+- **Context engineering**: Providing agents with precise repository state and isolated execution graphs.
+- **Tool use (GitHub REST API)**: Enabling the duplicate detector agent to actively search repository history for similar issues.
+- **Parallel agent execution**: Running independent tasks (duplicate checking, missing info checking, priority prediction) concurrently for faster inference.
+- **Google ADK Workflows**: Utilizing a structured graph-based state machine for reliable and observable agent orchestration.
+- **Gemini 2.5 Flash**: Using the latest high-speed multimodal models for rapid, cost-effective reasoning.
 
 ---
 
@@ -177,6 +205,16 @@ The triage agent is evaluated locally using the Google ADK Evaluation harness:
    agents-cli eval run --dataset tests/eval/datasets/issues_eval.json
    ```
 The evaluation report will be compiled under `backend/artifacts/grade_results/` showing performance scores.
+
+---
+
+## 🚀 Future Improvements
+
+- **GitHub OAuth**: Allow users to log in directly via GitHub instead of manually providing Personal Access Tokens.
+- **Automatic GitHub write-back**: Directly apply AI-suggested labels and post maintainer responses to the actual GitHub repository.
+- **Pull Request triage**: Expand the workflow to analyze, categorize, and review incoming PRs.
+- **Long-term memory**: Enable agents to learn repository-specific resolution patterns over time.
+- **Evaluation dashboard**: Build a visual UI for the ADK Evaluation harness to monitor triage accuracy metrics continuously.
 
 ---
 
