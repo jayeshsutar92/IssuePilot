@@ -3,7 +3,6 @@ services:
   db:
     image: postgres:15-alpine
     container_name: issuepilot-db
-    restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
@@ -16,7 +15,6 @@ services:
   redis:
     image: redis:7-alpine
     container_name: issuepilot-redis
-    restart: always
     ports:
       - "6379:6379"
     volumes:
@@ -27,7 +25,6 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: issuepilot-backend
-    restart: always
     ports:
       - "8000:8000"
     environment:
@@ -44,7 +41,6 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: issuepilot-frontend
-    restart: always
     ports:
       - "3000:3000"
     environment:
