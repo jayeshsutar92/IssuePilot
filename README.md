@@ -17,16 +17,16 @@ IssuePilot is a full-stack, AI-powered GitHub Issue Triage Assistant designed sp
 ## 📸 Screenshots
 
 ### Dashboard
-![Dashboard Placeholder](placeholder-dashboard.png)
+![Dashboard Placeholder](1-Dashboard.png)
 
 ### Repository Connection
-![Repository Connection Placeholder](placeholder-connect.png)
+![Repository Connection Placeholder](4-Details.png)
 
 ### Issue Queue
-![Issue Queue Placeholder](placeholder-queue.png)
+![Issue Queue Placeholder](6-Issue-queue.png)
 
 ### AI Triage Results
-![AI Triage Results Placeholder](placeholder-results.png)
+![AI Triage Results Placeholder](7-triage.png)
 
 ---
 
