@@ -4,6 +4,13 @@ IssuePilot is a full-stack, AI-powered GitHub Issue Triage Assistant designed sp
 
 ---
 
+## 🌐 Live Deployments
+
+- **Frontend**: [https://issue-pilot-psi.vercel.app/](https://issue-pilot-psi.vercel.app/)
+- **Backend**: [https://issuepilot.onrender.com](https://issuepilot.onrender.com)
+
+---
+
 ## 🚀 Features
 
 - **AI-Powered Priority Queue**: Dynamically assesses issue severity to assign priority tags (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`).
