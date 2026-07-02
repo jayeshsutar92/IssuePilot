@@ -5,11 +5,20 @@ Selected Track: Agents for Business
 Introduction
 In the software industry, maintaining a popular code repository is challenging. Developers spend countless hours reviewing incoming bugs and feature requests. The sheer volume of unstructured feedback often overwhelms project maintainers. I chose this problem because automating the initial review process frees up engineers to focus on writing code, which directly improves business productivity and product quality.
 
+![IssuePilot Landing Page](landing-page.png)
+*Caption: The IssuePilot landing page serves as a modern, high-contrast entry point to the AI-powered triage platform.*
+
 The Problem
 When users report issues, they often leave out critical information like execution logs or reproduction steps. Many submissions are duplicates of known bugs. Without automation, a human must read every submission, search the repository for similar reports, and manually ask the reporter for missing details. This manual triage creates a significant bottleneck in the software development lifecycle.
 
 Design Decisions and Architecture
 To solve this problem, I built IssuePilot. I wanted a platform that could integrate directly with existing workflows. I decided on a web application where users can securely connect their GitHub repositories using a Personal Access Token. 
+
+![Connecting a GitHub Repository](connect-repo.png)
+*Caption: Securely connecting an open-source repository (e.g., Kubernetes) using a GitHub Personal Access Token to initiate issue synchronization.*
+
+![Successful Repository Connection](connect-success.png)
+*Caption: Upon successful authentication, IssuePilot immediately imports existing issues into the database via background tasks.*
 
 The backend is built with FastAPI in Python, providing a fast and asynchronous environment suitable for handling AI tasks. Data is stored in a PostgreSQL database, and Redis is used for caching. The frontend is a Next.js application that provides a dashboard to monitor incoming issues and trigger the triage process. The entire stack runs in Docker containers to ensure consistent deployment.
 
@@ -21,13 +30,24 @@ When an issue arrives, three distinct AI agents run in parallel. The Duplicate D
 Implementation and Gemini Usage
 After the parallel agents finish their analysis, a join node merges their findings into a structured summary. I used the Gemini 2.5 Flash model because of its speed and its ability to handle parallel execution efficiently. The resulting data includes a cohesive rationale that explains the AI decisions, along with a draft response for the maintainer to post. This data is then saved to the database and sent to the frontend dashboard.
 
+![AI Triage Rationale](triage-queue-rationale.png)
+*Caption: A detailed view of the triage queue where the AI's logic—including priority level, duplicate status, suggested labels, and reasoning citations—is clearly presented to the maintainer.*
+
 Challenges Faced
 Developing a concurrent, background executing agent system presented significant challenges. I encountered silent failures because the FastAPI dependency injection closed the database session before the background triage task could run. I solved this by refactoring the background service to instantiate its own dedicated database connection block.
 
 Another issue was session data bleeding between consecutive agent runs. The ADK runner accumulated context across different issues when using a static user ID. I fixed this by dynamically generating unique session IDs for every issue processed, ensuring each triage run had completely isolated memory.
 
 Results
-The implemented system successfully synchronizes issues and presents them in a clean queue. The multi-agent graph accurately categorizes severity and highlights missing diagnostic steps without human intervention. The web interface updates smoothly, allowing users to filter their backlog and review the generated maintainer responses.
+The implemented system successfully synchronizes issues and presents them in a clean queue. The multi-agent graph accurately categorizes severity and highlights missing diagnostic steps without human intervention. 
+
+![IssuePilot Dashboard Overview](dashboard-overview.png)
+*Caption: The main dashboard provides maintainers with a real-time overview of triage statistics, including caught duplicates, missing information, and a breakdown of critical issues.*
+
+The web interface updates smoothly, allowing users to filter their backlog and review the generated maintainer responses.
+
+![Light Theme Dashboard](light-dashboard.png)
+*Caption: The UI seamlessly supports both dark and light modes, displaying active ADK agents and tracking synchronized repository issues (e.g., 44 total issues synced).*
 
 Future Improvements
 There are several ways to expand this project for broader business use. Integrating GitHub OAuth would streamline the onboarding process. Building automatic write-back functionality would allow the system to apply labels directly on GitHub. The workflow could also be expanded to triage and review Pull Requests. Additionally, adding long-term memory would help the agents learn resolution patterns specific to a given repository over time.
