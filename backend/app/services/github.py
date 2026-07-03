@@ -4,7 +4,20 @@ from app.config import settings
 
 class GitHubClient:
     def __init__(self, pat: Optional[str] = None):
-        self.pat = pat or settings.GITHUB_PAT
+        raw_pat = pat or settings.GITHUB_PAT
+        self.pat = None
+        
+        if raw_pat:
+            clean_pat = raw_pat.strip()
+            if not clean_pat.isascii():
+                invalid_chars = [c for c in clean_pat if ord(c) >= 128]
+                print(f"Error: Invalid non-ASCII characters found in GitHub PAT: {invalid_chars}")
+                raise ValueError(
+                    "The provided GitHub Personal Access Token contains invalid non-ASCII characters. "
+                    "Please check your .env file or input for hidden characters or accidental pastes."
+                )
+            self.pat = clean_pat
+
         self.headers = {
             "Accept": "application/vnd.github+json",
             "X-GitHub-Api-Version": "2022-11-28"
