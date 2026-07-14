@@ -56,6 +56,7 @@ export default function Home() {
   const [isLoadingRepos, setIsLoadingRepos] = useState(false);
   const [isLoadingIssues, setIsLoadingIssues] = useState(false);
   const [triageLoadingId, setTriageLoadingId] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   // Fetch Connected Repositories
   const fetchRepos = async () => {
@@ -107,6 +108,10 @@ export default function Home() {
   useEffect(() => {
     fetchIssues();
   }, [selectedRepoFilter, priorityFilter, duplicateFilter]);
+
+  useEffect(() => {
+    setCopied(false);
+  }, [selectedIssue]);
 
   // Connect Repo
   const handleConnectRepo = async (e: React.FormEvent) => {
@@ -183,6 +188,49 @@ export default function Home() {
         setTriageLoadingId(null);
       }
     }
+  };
+
+  // Copy Triage Summary to clipboard
+  const handleCopySummary = () => {
+    if (!selectedIssue) return;
+    
+    const priority = selectedIssue.priority || "Not evaluated";
+    const duplicate = selectedIssue.triaged_at 
+      ? (selectedIssue.is_duplicate ? `Yes (Issue #${selectedIssue.duplicate_issue_number})` : "No")
+      : "Not evaluated";
+    const missingInfo = selectedIssue.triaged_at
+      ? (selectedIssue.missing_information && selectedIssue.missing_information.length > 0 
+          ? selectedIssue.missing_information.join(", ") 
+          : "None")
+      : "Not evaluated";
+    const suggestedLabels = selectedIssue.triaged_at
+      ? (selectedIssue.suggested_labels && selectedIssue.suggested_labels.length > 0
+          ? selectedIssue.suggested_labels.join(", ")
+          : "None")
+      : "Not evaluated";
+    const rationale = selectedIssue.rationale || "None";
+    const response = selectedIssue.suggested_maintainer_response || "None";
+
+    const summaryText = `Issue #${selectedIssue.issue_number}: ${selectedIssue.title}
+
+--- AI TRIAGE SUMMARY ---
+Priority: ${priority}
+Duplicate: ${duplicate}
+Missing Diagnostic Details: ${missingInfo}
+Suggested GitHub Labels: ${suggestedLabels}
+
+--- AGENT REASONING & CITATIONS ---
+${rationale}
+
+--- SUGGESTED MAINTAINER RESPONSE ---
+${response}`;
+
+    navigator.clipboard.writeText(summaryText).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(err => {
+      console.error("Failed to copy text: ", err);
+    });
   };
 
   // Helper for priority badges
@@ -739,6 +787,28 @@ export default function Home() {
                               </>
                             )}
                           </button>
+                          {selectedIssue.triaged_at && (
+                            <button
+                              onClick={handleCopySummary}
+                              className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700/60 font-bold hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors text-xs text-slate-700 dark:text-zinc-300 flex items-center space-x-1.5"
+                            >
+                              {copied ? (
+                                <>
+                                  <svg className="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                  </svg>
+                                  <span>Copied!</span>
+                                </>
+                              ) : (
+                                <>
+                                  <svg className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                  </svg>
+                                  <span>Copy Summary</span>
+                                </>
+                              )}
+                            </button>
+                          )}
                         </div>
                       </div>
 
