@@ -31,7 +31,7 @@ interface IssueTriage {
 }
 
 export default function Home() {
-  const API_HOST = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const API_HOST = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://issuepilot.onrender.com" : "http://localhost:8000");
 
   // State
   const [activeTab, setActiveTab] = useState<"dashboard" | "connect" | "queue">("dashboard");
