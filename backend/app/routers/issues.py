@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Response
+from fastapi.encoders import jsonable_encoder
 from sqlmodel import Session
 from typing import List, Optional
 from app.database import get_session
@@ -25,7 +26,7 @@ async def list_issues(
         
     # Sort issues (triaged first, or github created date)
     issues = query.order_by(IssueTriage.github_created_at.desc()).all()
-    return JSONResponse(content=[issue.dict() for issue in issues], headers={"Cache-Control": "no-store"})
+    return JSONResponse(content=jsonable_encoder([issue.dict() for issue in issues]), headers={"Cache-Control": "no-store"})
 
 @router.get("/{issue_id}", response_model=IssueTriage)
 async def get_issue_details(issue_id: str, response: Response, db: Session = Depends(get_session)):
