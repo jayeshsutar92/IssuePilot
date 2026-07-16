@@ -5,7 +5,7 @@ from app.database import get_session
 from app.models import IssueTriage, Repository
 from app.services.triage import run_issue_triage
 from app.config import settings
-
+from fastapi.responses import JSONResponse
 router = APIRouter(prefix="/api/issues", tags=["Issues"])
 
 @router.get("", response_model=List[IssueTriage])
