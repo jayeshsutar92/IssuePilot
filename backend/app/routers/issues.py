@@ -24,10 +24,12 @@ async def list_issues(
         query = query.filter(IssueTriage.is_duplicate == is_duplicate)
         
     # Sort issues (triaged first, or github created date)
-    return query.order_by(IssueTriage.github_created_at.desc()).all()
+    issues = query.order_by(IssueTriage.github_created_at.desc()).all()
+    return JSONResponse(content=[issue.dict() for issue in issues], headers={"Cache-Control": "no-store"})
 
 @router.get("/{issue_id}", response_model=IssueTriage)
-async def get_issue_details(issue_id: str, db: Session = Depends(get_session)):
+async def get_issue_details(issue_id: str, response: Response, db: Session = Depends(get_session)):
+    response.headers["Cache-Control"] = "no-store"
     issue = db.query(IssueTriage).filter(IssueTriage.id == issue_id).first()
     if not issue:
         raise HTTPException(status_code=404, detail="Issue not found")
